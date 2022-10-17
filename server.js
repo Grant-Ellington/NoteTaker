@@ -12,6 +12,7 @@ const path = require('path')
 app.use(express.static('public'))
 
 const readFileAsync = util.promisify(fs.readFile)
+const writeFileAsync = util.promisify(fs.writeFile)
 app.get('/notes', (req, res)=>{
     res.sendFile(path.join(__dirname, '/public/notes.html'))
 })
@@ -19,15 +20,16 @@ app.get('/notes', (req, res)=>{
 app.get('/api/notes', (req, res) => {
     readFileAsync('./db/db.json', 'utf8').then(data => {
         //console.log(data)
-        let newNotes;
-        newNotes = [].concat(JSON.parse(data));
-        return res.json(newNotes)
+        let activeNotes;
+        activeNotes = [].concat(JSON.parse(data));
+        return res.json(activeNotes)
     })
 })
 
 app.post('./api/notes', (req, res) => {
-    readFileAsync('./db/.json', 'utf8').then(data => {
-        console.log(data)
+    writeFileAsync('./db/db.json', 'utf8').then(data => {
+        let saveNote = [].concat(JSON.parse(data))
+        return req.json(saveNote)
     })
 })
 
@@ -40,4 +42,4 @@ app.get('*', (req, res)=>{
 
 //set up for port to be listened to by local host
 app.listen(PORT, ()=>
-console.log(`Serving static asset routes at http://localhost:${PORT}!`))
+console.log(`Serving static asset routes at http://localhost:${PORT}`))
