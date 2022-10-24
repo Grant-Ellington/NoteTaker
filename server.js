@@ -2,17 +2,22 @@ const fs = require('fs')
 const util = require('util')
 //requirement for npm express
 const express = require('express')
-//setting up common functions for exporess
+//setting up common functions for express
 const app = express();
 
 //created PORT vairibale for .listen 
 const PORT = 3002
-const path = require('path')
+const path = require('path');
+const { title } = require('process');
+const e = require('express');
 //middleware
 app.use(express.static('public'))
+app.use(express.json());
+app.use(express.urlencoded({extended: true}))
 
 const readFileAsync = util.promisify(fs.readFile)
 const writeFileAsync = util.promisify(fs.writeFile)
+
 app.get('/notes', (req, res)=>{
     res.sendFile(path.join(__dirname, '/public/notes.html'))
 })
@@ -26,11 +31,22 @@ app.get('/api/notes', (req, res) => {
     })
 })
 
-app.post('./api/notes', (req, res) => {
-    writeFileAsync('./db/db.json', 'utf8').then(data => {
-        let saveNote = [].concat(JSON.parse(data))
-        return req.json(saveNote)
-    })
+app.post('/api/notes', (req, res) => {
+        console.log(req.body)
+       const {title, text} = req.body
+
+        if(title && text) {
+            const newNote = {title, text}
+        
+
+        readFileAsync('./db/db.json','utf8').then((data)=>{
+            data = JSON.parse(data)
+        return [...data, newNote]
+    }).then((data)=>{writeFileAsync('./db/db.json', JSON.stringify(data))}).then(
+        ()=>{return res.json(newNote)}
+    )
+} else{throw new Error('note must conatain title and text')}
+    
 })
 
 
