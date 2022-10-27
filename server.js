@@ -15,13 +15,15 @@ app.use(express.static('public'))
 app.use(express.json());
 app.use(express.urlencoded({extended: true}))
 
+//const variables for async function
 const readFileAsync = util.promisify(fs.readFile)
 const writeFileAsync = util.promisify(fs.writeFile)
 
+// route to send notes page and show note's page
 app.get('/notes', (req, res)=>{
     res.sendFile(path.join(__dirname, '/public/notes.html'))
 })
-
+//adds notes form data base to active notes list
 app.get('/api/notes', (req, res) => {
     readFileAsync('./db/db.json', 'utf8').then(data => {
         //console.log(data)
@@ -30,7 +32,7 @@ app.get('/api/notes', (req, res) => {
         return res.json(activeNotes)
     })
 })
-
+//post notes and into database on save click
 app.post('/api/notes', (req, res) => {
         console.log(req.body)
        const {title, text} = req.body
