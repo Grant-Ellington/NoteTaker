@@ -6,7 +6,7 @@ const express = require('express')
 const app = express();
 
 //created PORT vairibale for .listen 
-const PORT = 3002
+const PORT = process.env.PORT || 3002;
 const path = require('path');
 const { title } = require('process');
 const e = require('express');
@@ -37,14 +37,12 @@ app.post('/api/notes', (req, res) => {
 
         if(title && text) {
             const newNote = {title, text}
-        
-
-        readFileAsync('./db/db.json','utf8').then((data)=>{
-            data = JSON.parse(data)
-        return [...data, newNote]
-    }).then((data)=>{writeFileAsync('./db/db.json', JSON.stringify(data))}).then(
-        ()=>{return res.json(newNote)}
-    )
+            readFileAsync('./db/db.json','utf8').then((data)=>{
+                data = JSON.parse(data)
+                return [...data, newNote]
+            })
+            .then((data)=>{writeFileAsync('./db/db.json', JSON.stringify(data))})
+            .then(()=>{return res.json(newNote)})
 } else{throw new Error('note must conatain title and text')}
     
 })
